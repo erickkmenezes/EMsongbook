@@ -1,0 +1,19 @@
+{
+  "name": "EM Songbook - Erick & Leandro",
+  "short_name": "EM Songbook",
+  "description": "Songbook digital para apresentações ao vivo.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#090d12",
+  "theme_color": "#090d12",
+  "orientation": "landscape",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

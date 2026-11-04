@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#090d12">
+<meta name="description" content="Songbook digital Erick & Leandro para apresentações ao vivo.">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<title>EM Songbook | Erick & Leandro</title>
+<style>
+:root{color-scheme:dark;--bg:#090d12;--panel:#151d27;--panel2:#202b38;--line:#344252;--txt:#f5f7fa;--muted:#aab7c5;--gold:#f2c66d;--accent:#a87925}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:16px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+button,input,textarea,select{font:inherit}button{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:10px 13px;cursor:pointer}button.primary{background:var(--accent);border-color:var(--accent);color:white;font-weight:700}button.danger{border-color:#9b4141;color:#ffb8b8}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+header{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;background:#090d12ed;z-index:5;backdrop-filter:blur(10px)}
+.brand{font-weight:850;letter-spacing:.08em}.sub{font-size:11px;color:var(--muted);letter-spacing:.16em}
+main{max-width:1200px;margin:auto;padding:16px;display:grid;gap:14px}.tabs,.toolbar,.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.tabs button.active,.mode button.active{background:var(--accent);border-color:var(--accent)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}.panel h2{font-size:16px;margin:0 0 12px}
+input,textarea,select{background:#0d141d;color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:11px;width:100%;min-width:0}
+textarea{min-height:170px;resize:vertical;line-height:1.5}.field{display:grid;gap:6px}.field label,.small{font-size:12px;color:var(--muted)}
+.grid-form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}
+.hidden{display:none!important}.muted{color:var(--muted)}.song-list{display:grid;gap:8px}.song-item{display:flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px}.song-item .info{flex:1;min-width:0}.song-item strong{display:block;overflow-wrap:anywhere}.song-item small{color:var(--muted)}
+.stage-wrap{display:grid;gap:12px}.stage-controls{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.stage{background:#05080c;color:#fff;border:1px solid #293440;border-radius:12px;padding:12px;min-height:55vh;overflow:auto}
+.stage-head{text-align:center;font-size:11px;letter-spacing:.2em;color:#9ba8b6;margin-bottom:12px}
+.columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));min-height:45vh}
+.col{padding:6px 14px;min-width:0;overflow-wrap:anywhere;white-space:pre-wrap;border-right:1px solid #394654}
+.col:last-child{border-right:0}.col h3{margin:0 0 14px;color:var(--gold);font-size:14px;letter-spacing:.04em;text-transform:uppercase}
+.lyrics{line-height:1.48}.placeholder{color:#9ba8b6}
+.selector-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.selector label{display:block;color:var(--muted);font-size:11px;font-weight:700;margin-bottom:5px}
+.actions{display:flex;gap:7px;flex-wrap:wrap}.status{font-size:12px;color:var(--muted);min-height:18px}
+@media(max-width:650px){main{padding:10px}.grid-form{grid-template-columns:1fr}.full{grid-column:auto}.selector-grid{grid-template-columns:1fr 1fr}.col{padding:5px 8px}.col h3{font-size:11px}}
+@media(orientation:portrait) and (max-width:700px){.stage{min-height:60vh}}
+body.light{--bg:#e9edf2;--panel:#fff;--panel2:#edf1f5;--line:#c8d0da;--txt:#111923;--muted:#596777}
+body.light header{background:#e9edf2ed}
+body.light .stage{background:#f7f8fa;color:#111;border-color:#cbd2da}
+body.light .col{border-color:#cbd2da}body.light .col h3{color:#805400}body.light .placeholder{color:#697887}
+@media print{header,.tabs,.stage-controls,.panel:not(.stage-panel){display:none!important}body{background:white}.stage{min-height:0;border:0}}
+</style>
+</head>
+<body>
+<header><div><div class="brand">ERICK & LEANDRO</div><div class="sub">SONGBOOK DE PALCO</div></div><div class="small">EM SONGBOOK</div></header>
+<main>
+ <nav class="tabs" aria-label="Navegação"><button id="tabStage" class="active">Palco</button><button id="tabLibrary">Biblioteca</button><button id="tabSets">Repertórios</button><button id="tabBackup">Backup</button></nav>
+ <section id="viewStage" class="stage-wrap">
+  <div class="panel">
+   <div class="stage-controls">
+    <div class="row mode"><strong>Visualização</strong><button id="two" class="active">2 colunas</button><button id="three">3 colunas</button></div>
+    <div class="row"><button id="minus" aria-label="Diminuir fonte">A−</button><strong id="fontSize">18 px</strong><button id="plus" aria-label="Aumentar fonte">A+</button><button id="contrast">Contraste</button><button id="full" class="primary">Tela cheia</button></div>
+   </div>
+   <p class="small">Escolha manualmente a música de cada coluna. Use a horizontal do tablet para melhor leitura.</p>
+   <div id="selectors" class="selector-grid"></div>
+  </div>
+  <div class="stage stage-panel"><div class="stage-head">ERICK & LEANDRO · AO VIVO</div><div id="columns" class="columns"></div></div>
+  <div class="small">As músicas e os repertórios ficam salvos neste dispositivo. Exporte backups regularmente para não perder seus dados.</div>
+ </section>
+ <section id="viewLibrary" class="hidden">
+  <div class="panel">
+   <h2 id="formHeading">Adicionar música</h2>
+   <div class="grid-form">
+    <div class="field full"><label for="songTitle">Nome da música</label><input id="songTitle" placeholder="Ex.: Toda Forma de Poder"></div>
+    <div class="field full"><label for="songLyrics">Letra / cifra / anotações</label><textarea id="songLyrics" placeholder="Cole ou digite a letra aqui..."></textarea></div>
+    <div class="actions full"><button id="saveSong" class="primary">Salvar música</button><button id="cancelEdit">Limpar formulário</button></div>
+   </div><div id="songStatus" class="status"></div>
+  </div>
+  <div class="panel"><h2>Minha biblioteca</h2><input id="search" placeholder="Buscar música..."><div id="songList" class="song-list" style="margin-top:10px"></div></div>
+ </section>
+ <section id="viewSets" class="hidden">
+  <div class="panel"><h2>Criar repertório</h2><div class="row"><input id="setName" placeholder="Nome do repertório (ex.: Acústico Rock)"><button id="addSet" class="primary">Criar</button></div><div id="setStatus" class="status"></div></div>
+  <div class="panel"><h2>Organizar repertórios</h2><div id="setList" class="song-list"></div></div>
+ </section>
+ <section id="viewBackup" class="hidden">
+  <div class="panel"><h2>Backup e transferência</h2><p class="small">Exporte suas músicas e repertórios para um arquivo. Envie esse arquivo ao seu parceiro; ele poderá importá-lo nesta mesma aplicação.</p><div class="actions"><button id="export" class="primary">Exportar backup</button><button id="import">Importar backup</button><input id="file" type="file" accept="application/json,.json" class="hidden"></div><div id="backupStatus" class="status"></div></div>
+  <div class="panel"><h2>Importar o backup do protótipo</h2><p class="small">Se você exportou as três músicas do primeiro protótipo, selecione o mesmo arquivo JSON aqui. As músicas serão incorporadas à biblioteca sem apagar as atuais.</p><button id="importOld">Selecionar backup antigo</button><input id="oldFile" type="file" accept="application/json,.json" class="hidden"></div>
+ </section>
+</main>
+<script>
+(()=>{
+const $=id=>document.getElementById(id),KEY='emSongbook_v2';
+let data={songs:[],sets:[]},editing=null,count=2,font=18,chosen=[null,null,null],activeSet=null;
+const uid=()=> 'id'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){alert('Não foi possível salvar. Exporte um backup e libere espaço no navegador.');}}
+function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function song(id){return data.songs.find(x=>x.id===id)}
+function show(view){['Stage','Library','Sets','Backup'].forEach(v=>{$('view'+v).classList.toggle('hidden',v!==view);$('tab'+v).classList.toggle('active',v===view)});if(view==='Library')renderSongs();if(view==='Sets')renderSets();}
+$('tabStage').onclick=()=>show('Stage');$('tabLibrary').onclick=()=>show('Library');$('tabSets').onclick=()=>show('Sets');$('tabBackup').onclick=()=>show('Backup');
+function renderSelectors(){
+$('selectors').style.gridTemplateColumns=`repeat(${count},minmax(0,1fr))`;
+$('selectors').innerHTML=Array.from({length:count},(_,i)=>`<div class="selector"><label for="col${i}">COLUNA ${i+1}</label><select id="col${i}"><option value="">— Selecione uma música —</option>${data.songs.map(s=>`<option value="${safe(s.id)}">${safe(s.title)}</option>`).join('')}</select></div>`).join('');
+for(let i=0;i<count;i++){let el=$('col'+i);el.value=chosen[i]||'';el.onchange=()=>{chosen[i]=el.value||null;renderStage()};}
+}
+function renderStage(){
+$('columns').style.gridTemplateColumns=`repeat(${count},minmax(0,1fr))`;
+$('columns').innerHTML=Array.from({length:count},(_,i)=>{let s=song(chosen[i]);return `<article class="col"><h3>${s?safe(s.title):'Coluna '+(i+1)}</h3><div class="lyrics" style="font-size:${font}px">${s?safe(s.lyrics):'<span class="placeholder">Selecione uma música na lista acima.</span>'}</div></article>`}).join('');
+$('fontSize').textContent=font+' px';
+}
+function setCount(n){count=n;$('two').classList.toggle('active',n===2);$('three').classList.toggle('active',n===3);renderSelectors();renderStage();}
+$('two').onclick=()=>setCount(2);$('three').onclick=()=>setCount(3);
+$('minus').onclick=()=>{font=Math.max(11,font-1);renderStage()};$('plus').onclick=()=>{font=Math.min(34,font+1);renderStage()};
+$('contrast').onclick=()=>document.body.classList.toggle('light');
+$('full').onclick=async()=>{try{if(!document.fullscreenElement)await $('viewStage').requestFullscreen();else await document.exitFullscreen()}catch(e){alert('Tela cheia não disponível neste navegador.')}};
+function clearForm(){editing=null;$('songTitle').value='';$('songLyrics').value='';$('formHeading').textContent='Adicionar música';}
+$('cancelEdit').onclick=clearForm;
+$('saveSong').onclick=()=>{
+let title=$('songTitle').value.trim(),lyrics=$('songLyrics').value.trim();
+if(!title||!lyrics){$('songStatus').textContent='Preencha o título e a letra.';return;}
+if(editing){let s=song(editing);s.title=title;s.lyrics=lyrics;}else data.songs.push({id:uid(),title,lyrics});
+save();clearForm();$('songStatus').textContent='Música salva neste dispositivo.';renderSongs();renderSelectors();renderStage();
+};
+function renderSongs(){
+let q=$('search').value.toLowerCase(),list=data.songs.filter(s=>s.title.toLowerCase().includes(q));
+$('songList').innerHTML=list.length?list.map(s=>`<div class="song-item"><div class="info"><strong>${safe(s.title)}</strong><small>${s.lyrics.length} caracteres</small></div><button data-edit="${safe(s.id)}">Editar</button><button class="danger" data-del="${safe(s.id)}">Excluir</button></div>`).join(''):'<p class="small">Nenhuma música cadastrada. Adicione sua primeira música acima.</p>';
+$('songList').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{let s=song(b.dataset.edit);editing=s.id;$('songTitle').value=s.title;$('songLyrics').value=s.lyrics;$('formHeading').textContent='Editar música';show('Library');$('songTitle').focus();});
+$('songList').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{let s=song(b.dataset.del);if(!confirm(`Excluir "${s.title}"?`))return;data.songs=data.songs.filter(x=>x.id!==s.id);data.sets.forEach(r=>r.songIds=r.songIds.filter(id=>id!==s.id));chosen=chosen.map(id=>id===s.id?null:id);save();renderSongs();renderSets();renderSelectors();renderStage();});
+}
+$('search').oninput=renderSongs;
+$('addSet').onclick=()=>{let name=$('setName').value.trim();if(!name){$('setStatus').textContent='Digite um nome para o repertório.';return;}data.sets.push({id:uid(),name,songIds:[]});$('setName').value='';save();renderSets();$('setStatus').textContent='Repertório criado.';};
+function renderSets(){
+$('setList').innerHTML=data.sets.length?data.sets.map(r=>`<div class="panel"><div class="row"><strong style="flex:1">${safe(r.name)}</strong><button data-setdel="${safe(r.id)}" class="danger">Excluir</button></div><div class="field" style="margin-top:10px"><label>Adicionar música ao repertório</label><select data-addsong="${safe(r.id)}"><option value="">Escolha uma música</option>${data.songs.filter(s=>!r.songIds.includes(s.id)).map(s=>`<option value="${safe(s.id)}">${safe(s.title)}</option>`).join('')}</select></div><ol>${r.songIds.map((id,i)=>`<li class="row" style="margin:7px 0"><span style="flex:1">${safe(song(id)?.title||'Música removida')}</span><button data-up="${safe(r.id)}|${i}">↑</button><button data-down="${safe(r.id)}|${i}">↓</button><button data-remove="${safe(r.id)}|${safe(id)}" class="danger">×</button></li>`).join('')}</ol><button data-load="${safe(r.id)}" class="primary">Carregar no palco</button></div>`).join(''):'<p class="small">Você ainda não criou repertórios.</p>';
+$('setList').querySelectorAll('[data-setdel]').forEach(b=>b.onclick=()=>{if(confirm('Excluir este repertório?')){data.sets=data.sets.filter(r=>r.id!==b.dataset.setdel);save();renderSets()}});
+$('setList').querySelectorAll('[data-addsong]').forEach(el=>el.onchange=()=>{let r=data.sets.find(x=>x.id===el.dataset.addsong);if(el.value&&r){r.songIds.push(el.value);save();renderSets()}});
+$('setList').querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{let [rid,sid]=b.dataset.remove.split('|'),r=data.sets.find(x=>x.id===rid);r.songIds=r.songIds.filter(x=>x!==sid);save();renderSets()});
+$('setList').querySelectorAll('[data-up],[data-down]').forEach(b=>b.onclick=()=>{let [rid,idx]= (b.dataset.up||b.dataset.down).split('|'),r=data.sets.find(x=>x.id===rid),i=+idx,j=i+(b.dataset.up?-1:1);if(j>=0&&j<r.songIds.length){[r.songIds[i],r.songIds[j]]=[r.songIds[j],r.songIds[i]];save();renderSets()}});
+$('setList').querySelectorAll('[data-load]').forEach(b=>b.onclick=()=>{let r=data.sets.find(x=>x.id===b.dataset.load);chosen=[r.songIds[0]||null,r.songIds[1]||null,r.songIds[2]||null];activeSet=r.id;setCount(2);show('Stage');});
+}
+function download(obj,name){let blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+$('export').onclick=()=>{download({format:'em-songbook-backup-v2',...data},'EMsongbook-backup.json');$('backupStatus').textContent='Backup exportado. Guarde o arquivo em local seguro.'};
+function importData(parsed,merge){
+let incomingSongs=Array.isArray(parsed)?parsed:parsed.songs;
+if(!Array.isArray(incomingSongs)||incomingSongs.some(s=>typeof s.title!=='string'||typeof s.lyrics!=='string'))throw Error('Arquivo inválido');
+let idMap={};
+incomingSongs.forEach(s=>{let existing=merge?data.songs.find(x=>x.title.toLowerCase()===s.title.toLowerCase()):null;if(existing){idMap[s.id]=existing.id;return;}let id=uid();idMap[s.id]=id;data.songs.push({id,title:s.title,lyrics:s.lyrics});});
+if(!Array.isArray(parsed)){(parsed.sets||[]).forEach(r=>{if(!data.sets.some(x=>x.name===r.name)){data.sets.push({id:uid(),name:r.name,songIds:(r.songIds||[]).map(id=>idMap[id]).filter(Boolean)});}});}
+save();renderSongs();renderSets();renderSelectors();renderStage();
+}
+async function readFile(file,merge){let parsed=JSON.parse(await file.text());importData(parsed,merge);}
+$('import').onclick=()=>$('file').click();$('file').onchange=async e=>{try{await readFile(e.target.files[0],false);$('backupStatus').textContent='Backup importado. Os dados anteriores foram substituídos.';}catch(err){alert('Não foi possível importar: '+err.message)}e.target.value=''};
+$('importOld').onclick=()=>$('oldFile').click();$('oldFile').onchange=async e=>{try{await readFile(e.target.files[0],true);$('backupStatus').textContent='Músicas do protótipo importadas para a biblioteca.';}catch(err){alert('Arquivo antigo inválido: '+err.message)}e.target.value=''};
+try{let stored=JSON.parse(localStorage.getItem(KEY)||'null');if(stored&&Array.isArray(stored.songs))data=stored;}catch(e){}
+renderSelectors();renderStage();renderSongs();renderSets();
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+})();
+</script>
+</body></html>
