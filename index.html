@@ -51,11 +51,31 @@ function currentPlaylist(){return playlist(activePlaylist)||data.sets[0]||null}
 function sequenceLabel(seq){return (seq.songIds||[]).map(id=>song(id)?.title||'Música removida').join(' / ')}
 function renderPlaylistSelect(){let p=currentPlaylist();if(p)activePlaylist=p.id;$('stagePlaylist').innerHTML=data.sets.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join('')||'<option value="">Nenhuma playlist criada</option>';if(activePlaylist)$('stagePlaylist').value=activePlaylist;}
 $('stagePlaylist').onchange=()=>{activePlaylist=$('stagePlaylist').value;activeSeq=0;renderStage()};
-function renderStage(){let p=currentPlaylist(),seq=p?.sequences?.[activeSeq];$('columns').style.gridTemplateColumns='repeat('+cols+',minmax(0,1fr))';$('columns').innerHTML='';if(!p||!p.sequences.length){$('columns').innerHTML='<div class="col"><h3>Seu palco está pronto</h3><div class="placeholder">Crie uma playlist, adicione músicas à biblioteca e monte suas sequências.</div></div>';cols=1;document.querySelectorAll('[data-cols]').forEach(b=>b.classList.toggle('active',b.dataset.cols==='1'));$('currentSequence').textContent='Nenhuma sequência aberta';$('stagePosition').textContent='';$('stageSequenceList').innerHTML='';return;}
-if(!seq){activeSeq=0;seq=p.sequences[0];}
-let n=Math.max(1,Math.min(3,seq.songIds.length||1));cols=n;document.querySelectorAll('[data-cols]').forEach(b=>b.classList.toggle('active',+b.dataset.cols===cols));$('columns').style.gridTemplateColumns='repeat('+cols+',minmax(0,1fr))';
-$('columns').innerHTML=Array.from({length:n},(_,i)=>{let s=song(seq.songIds[i]);return '<article class="col"><h3>'+(s?esc(s.title):'Coluna '+(i+1))+'</h3><div class="lyrics" style="font-size:'+font+'px">'+(s?esc(s.lyrics):'<span class="placeholder">Música não encontrada na biblioteca.</span>')+'</div></article>'}).join('');
-$('fontSize').textContent=font+' px';$('currentSequence').textContent=sequenceLabel(seq);$('stagePosition').textContent=(activeSeq+1)+' / '+p.sequences.length;$('prevSeq').disabled=activeSeq===0;$('nextSeq').disabled=activeSeq>=p.sequences.length-1;renderStageSequenceList();}
+function renderStage(){
+ let p=currentPlaylist(),seq=p?.sequences?.[activeSeq];
+ document.querySelectorAll('[data-cols]').forEach(b=>b.classList.toggle('active',+b.dataset.cols===cols));
+ $('columns').style.gridTemplateColumns='repeat('+cols+',minmax(0,1fr))';
+ $('columns').innerHTML='';
+ if(!p||!p.sequences.length){
+   $('columns').innerHTML='<div class="col" style="grid-column:1/-1"><h3>Seu palco está pronto</h3><div class="placeholder">Crie uma playlist, adicione músicas à biblioteca e monte suas sequências.</div></div>';
+   $('currentSequence').textContent='Nenhuma sequência aberta';
+   $('stagePosition').textContent='';
+   $('stageSequenceList').innerHTML='';
+   $('fontSize').textContent=font+' px';
+   $('prevSeq').disabled=true;$('nextSeq').disabled=true;
+   return;
+ }
+ if(!seq){activeSeq=0;seq=p.sequences[0];}
+ $('columns').innerHTML=Array.from({length:cols},(_,i)=>{
+   let s=song(seq.songIds[i]);
+   return '<article class="col"><h3>'+(s?esc(s.title):'Coluna '+(i+1))+'</h3><div class="lyrics" style="font-size:'+font+'px">'+(s?esc(s.lyrics):'<span class="placeholder">Adicione uma '+(i+1)+'ª música diferente nesta sequência, na aba Repertórios.</span>')+'</div></article>'
+ }).join('');
+ $('fontSize').textContent=font+' px';
+ $('currentSequence').textContent=sequenceLabel(seq);
+ $('stagePosition').textContent=(activeSeq+1)+' / '+p.sequences.length;
+ $('prevSeq').disabled=activeSeq===0;$('nextSeq').disabled=activeSeq>=p.sequences.length-1;
+ renderStageSequenceList();
+}
 function renderStageSequenceList(){let p=currentPlaylist();$('stageSequenceList').innerHTML=p?.sequences?.length?p.sequences.map((q,i)=>'<button class="sequence-item" data-stage-seq="'+i+'" style="text-align:left"><span class="seq-num">'+(i+1)+'.</span><span class="seq-name">'+esc(sequenceLabel(q))+'</span><span class="tag">'+q.songIds.length+' música(s)</span></button>').join(''):'<p class="small">Nenhuma sequência cadastrada.</p>';$('stageSequenceList').querySelectorAll('[data-stage-seq]').forEach(b=>b.onclick=()=>{activeSeq=+b.dataset.stageSeq;renderStage()});}
 function gotoSeq(d){let p=currentPlaylist();if(!p)return;let next=activeSeq+d;if(next>=0&&next<p.sequences.length){activeSeq=next;renderStage();}}
 $('prevSeq').onclick=()=>gotoSeq(-1);$('nextSeq').onclick=()=>gotoSeq(1);$('backSequences').onclick=()=>show('Sets');
