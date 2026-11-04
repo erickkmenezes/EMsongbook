@@ -1,6 +1,6 @@
 {
-  "name": "EMsongbook - Erick & Leandro",
-  "short_name": "EMsongbook",
+  "name": "EM Songbook - Erick & Leandro",
+  "short_name": "EM Songbook",
   "description": "Songbook digital para apresentações ao vivo.",
   "start_url": "./",
   "scope": "./",
