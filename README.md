@@ -1,4 +1,4 @@
-# EM Songbook — Erick & Leandro
+# EMsongbook — Erick & Leandro
 
 Aplicação web instalável (PWA), gratuita e sem anúncios, para organizar letras e repertórios.
 
