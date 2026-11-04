@@ -14,7 +14,7 @@ body.light{--bg:#e9edf2;--panel:#fff;--panel2:#edf1f5;--line:#c8d0da;--txt:#1119
 @media(max-width:650px){.wrap{padding:10px}.formgrid{grid-template-columns:1fr}.full{grid-column:auto}.homecards{grid-template-columns:1fr}.homecard{min-height:115px}.col{padding:5px 8px}.col h3{font-size:11px}.stage{min-height:62vh}.panel{padding:12px}}
 </style></head>
 <body>
-<header><div><div class="brand">ERICK & LEANDRO</div><div class="sub">EMSONGBOOK · LIVE MUSIC</div></div><button id="homeBtn" class="ghost">⌂ Início</button></header>
+<header><div><div class="brand">ERICK & LEANDRO</div><div class="sub">EMSONGBOOK · LIVE MUSIC</div></div><div class="row"><button id="backBtn" class="ghost">← Voltar</button><button id="homeBtn" class="ghost">⌂ Início</button></div></header>
 <main class="wrap">
 <section id="home" class="home"><div class="hero-mark">ERICK & LEANDRO APRESENTAM</div><div class="hero-title">EM<span style="color:var(--gold)">SONG</span>BOOK</div><p class="hero-sub">Seu repertório de palco. Músicas, sequências e playlists organizadas para a próxima apresentação.</p><div class="homecards"><button class="homecard" id="goSongbook"><div class="symbol">♫</div><b>Acessar Songbook</b><span>Biblioteca, palco e controle das músicas</span></button><button class="homecard" id="goPlaylists"><div class="symbol">▤</div><b>Minhas playlists</b><span>Organize os repertórios de cada apresentação</span></button></div><div class="small">Seus dados ficam salvos neste dispositivo · Funciona offline após o primeiro carregamento</div></section>
 <section id="app" class="hidden">
@@ -50,7 +50,7 @@ function show(v){if(!restoringRoute)pushRoute('app',v,v==='Sets'?detailId:null);
 function restoreRoute(state){restoringRoute=true;const r=state||{screen:'home',tab:'Stage',detailId:null};if(r.screen==='home'){$('app').classList.add('hidden');$('home').classList.remove('hidden');$('playlistDetail').classList.add('hidden');detailId=null;}else{$('home').classList.add('hidden');$('app').classList.remove('hidden');detailId=null;show(r.tab||'Stage');if(r.detailId&&r.tab==='Sets')openDetail(r.detailId);else $('playlistDetail').classList.add('hidden');}restoringRoute=false;}
 history.replaceState({emSongbookRoute:{screen:'home',tab:'Stage',detailId:null}},'',location.href);
 window.addEventListener('popstate',e=>restoreRoute(e.state?.emSongbookRoute));
-$('goSongbook').onclick=()=>openApp('Stage');$('goPlaylists').onclick=()=>openApp('Sets');$('homeBtn').onclick=()=>{pushRoute('home');$('app').classList.add('hidden');$('home').classList.remove('hidden');};
+$('goSongbook').onclick=()=>openApp('Stage');$('goPlaylists').onclick=()=>openApp('Sets');$('backBtn').onclick=()=>{const r=history.state?.emSongbookRoute;if(r?.screen==='home')return;if(history.length>1)history.back();else restoreRoute({screen:'home',tab:'Stage',detailId:null});};$('homeBtn').onclick=()=>{pushRoute('home');$('app').classList.add('hidden');$('home').classList.remove('hidden');};
 $('tabStage').onclick=()=>show('Stage');$('tabLibrary').onclick=()=>show('Library');$('tabSets').onclick=()=>show('Sets');$('tabBackup').onclick=()=>show('Backup');
 function currentPlaylist(){return playlist(activePlaylist)||data.sets[0]||null}
 function sequenceLabel(seq){return (seq.songIds||[]).map(id=>song(id)?.title||'Música removida').join(' / ')}
