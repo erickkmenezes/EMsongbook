@@ -82,7 +82,7 @@ function enableLongPressReorder(container,handleSelector,itemSelector,indexAttr,
   container.addEventListener('pointerdown',e=>{
     if(e.pointerType==='mouse'&&e.button!==0)return;
     const handle=e.target.closest(handleSelector),item=handle?.closest(itemSelector);
-    if(!item||!container.contains(item)||e.target.closest('button,select,input,textarea'))return;
+    if(!item||!container.contains(item)||e.target.closest('button:not(.song-title-link),select,input,textarea'))return;
     active={item,from:Number(item.dataset[indexAttr]),pointerId:e.pointerId};
     timer=setTimeout(()=>{dragging=true;active?.item.classList.add('dragging');},320);
   });
