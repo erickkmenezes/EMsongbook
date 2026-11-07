@@ -75,9 +75,9 @@ body.light{--bg:#e9edf2;--panel:#fff;--panel2:#edf1f5;--line:#c8d0da;--txt:#1119
 </section></main>
 <div id="songPreviewOverlay" class="hidden" aria-hidden="true">
 <section class="song-preview-window" role="dialog" aria-modal="true" aria-labelledby="songPreviewTitle">
-<div class="song-preview-head"><h2 id="songPreviewTitle">Visualização da música</h2>
-<div class="song-preview-actions"><button id="songPreviewEdit" class="primary">Editar</button><button id="songPreviewClose" class="iconbtn" aria-label="Fechar visualização">✕</button></div></div>
-<div id="songPreviewContent" class="song-preview-content"></div>
+<div class="song-preview-head"><div style="min-width:0;flex:1"><h2 id="songPreviewTitle">Visualização da música</h2><input id="songPreviewTitleInput" class="hidden" aria-label="Nome da música"></div>
+<div class="song-preview-actions"><button id="songPreviewEdit" class="primary">Editar</button><button id="songPreviewSave" class="primary hidden">Salvar</button><button id="songPreviewCancel" class="hidden">Cancelar</button><button id="songPreviewClose" class="iconbtn" aria-label="Fechar visualização">✕</button></div></div>
+<div id="songPreviewContent" class="song-preview-content"></div><textarea id="songPreviewLyricsInput" class="hidden" style="margin:0;border:0;border-radius:0;flex:1;min-height:0;resize:none;padding:22px;line-height:1.7"></textarea>
 </section></div>
 <script>
 (()=>{
@@ -214,12 +214,16 @@ function renderSongs(){let q=$('search').value.toLowerCase(),items=data.songs.fi
 $('songList').querySelectorAll('[data-view-song]').forEach(b=>b.onclick=e=>{e.preventDefault();openSong(b.dataset.viewSong);});
 enableLongPressReorder($('songList'),'.reorder-touch','[data-library-drag]','libraryDrag',(from,to)=>{const [moved]=data.songs.splice(from,1);data.songs.splice(to,0,moved);save();renderSongs();});
 $('songList').querySelectorAll('[data-song-add]').forEach(b=>b.onclick=()=>{let id=b.dataset.songAdd,sel=$('songList').querySelector('[data-song-playlist="'+CSS.escape(id)+'"]'),p=playlist(sel.value);if(!p){alert('Selecione uma playlist primeiro.');return;}p.sequences.push({id:uid(),songIds:[id]});save();sel.value='';$('songStatus').textContent='Música adicionada à playlist '+p.name+'.';renderSets();});
-let previewSongId=null;
-function closeSongPreview(){$('songPreviewOverlay').classList.add('hidden');$('songPreviewOverlay').setAttribute('aria-hidden','true');previewSongId=null;}
-function openSong(id){let s=song(id);if(!s)return;previewSongId=id;$('songPreviewTitle').textContent=s.title;$('songPreviewContent').textContent=s.lyrics;$('songPreviewOverlay').classList.remove('hidden');$('songPreviewOverlay').setAttribute('aria-hidden','false');}
+let previewSongId=null,previewEditing=false;
+function setPreviewMode(isEditing){previewEditing=isEditing;$('songPreviewTitle').classList.toggle('hidden',isEditing);$('songPreviewTitleInput').classList.toggle('hidden',!isEditing);$('songPreviewContent').classList.toggle('hidden',isEditing);$('songPreviewLyricsInput').classList.toggle('hidden',!isEditing);$('songPreviewEdit').classList.toggle('hidden',isEditing);$('songPreviewSave').classList.toggle('hidden',!isEditing);$('songPreviewCancel').classList.toggle('hidden',!isEditing);}
+function refreshSongPreview(){const s=song(previewSongId);if(!s)return;$('songPreviewTitle').textContent=s.title;$('songPreviewContent').textContent=s.lyrics;$('songPreviewTitleInput').value=s.title;$('songPreviewLyricsInput').value=s.lyrics;}
+function closeSongPreview(){$('songPreviewOverlay').classList.add('hidden');$('songPreviewOverlay').setAttribute('aria-hidden','true');previewSongId=null;setPreviewMode(false);}
+function openSong(id){let s=song(id);if(!s)return;previewSongId=id;refreshSongPreview();setPreviewMode(false);$('songPreviewOverlay').classList.remove('hidden');$('songPreviewOverlay').setAttribute('aria-hidden','false');}
 $('songPreviewClose').onclick=closeSongPreview;
 $('songPreviewOverlay').addEventListener('click',e=>{if(e.target===$('songPreviewOverlay'))closeSongPreview();});
-$('songPreviewEdit').onclick=()=>{const id=previewSongId;closeSongPreview();if(id){editSong(id);$('formHeading').scrollIntoView({behavior:'smooth',block:'center'});}};
+$('songPreviewEdit').onclick=()=>{if(!song(previewSongId))return;refreshSongPreview();setPreviewMode(true);$('songPreviewTitleInput').focus();};
+$('songPreviewCancel').onclick=()=>{refreshSongPreview();setPreviewMode(false);};
+$('songPreviewSave').onclick=()=>{const s=song(previewSongId);if(!s)return;const title=$('songPreviewTitleInput').value.trim(),lyrics=$('songPreviewLyricsInput').value.trim();if(!title||!lyrics){alert('Preencha o nome e o conteúdo da música.');return;}s.title=title;s.lyrics=lyrics;save();renderSongs();renderSets();renderStage();refreshSongPreview();setPreviewMode(false);};
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('songPreviewOverlay').classList.contains('hidden'))closeSongPreview();});
 function editSong(id){let s=song(id);if(!s)return;editing=s.id;$('songTitle').value=s.title;$('songLyrics').value=s.lyrics;$('songTitle').readOnly=false;$('songLyrics').readOnly=false;$('saveSong').classList.remove('hidden');$('cancelEdit').textContent='Limpar';$('formHeading').textContent='Editar música';$('songTitle').focus();$('formHeading').scrollIntoView({behavior:'smooth',block:'center'});}
 $('songList').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editSong(b.dataset.edit));
