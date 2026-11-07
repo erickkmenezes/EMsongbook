@@ -128,7 +128,6 @@ $('songList').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{let s=son
 $('search').oninput=renderSongs;
 function openMusicSearch(kind){const isLyrics=kind==='lyrics',title=$('songTitle').value.trim()||$(isLyrics?'dashboardLyricsTitle':'dashboardChordsTitle').value.trim(),artist=$(isLyrics?'dashboardLyricsArtist':'dashboardChordsArtist').value.trim();if(!title){$('songTitle').focus();return;}const query=[title,artist].filter(Boolean).join(' '),slug=query.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');const url=isLyrics?'https://www.letras.com.br/search/?q='+encodeURIComponent(query):'https://www.cifraclub.com.br/search/'+slug+'/';window.open(url,'_blank','noopener,noreferrer');}
 function searchLibrarySite(kind){const query=$('librarySearchQuery').value.trim();if(!query){$('librarySearchQuery').focus();$('songStatus').textContent='Digite o nome da música ou do artista para pesquisar.';return;}const terms=kind==='lyrics'?query+' letra':query+' cifra club';const url='https://www.google.com/search?q='+encodeURIComponent(terms);window.open(url,'_blank','noopener,noreferrer');}
-$('librarySearchQuery').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();searchLibrarySite('lyrics');}});
 $('librarySearchLyrics').onclick=()=>searchLibrarySite('lyrics');$('librarySearchChords').onclick=()=>searchLibrarySite('chords');
 $('dashboardSearchLyrics').onclick=()=>openMusicSearch('lyrics');
 $('dashboardSearchChords').onclick=()=>openMusicSearch('chords');
