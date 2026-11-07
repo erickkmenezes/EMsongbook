@@ -73,6 +73,12 @@ body.light{--bg:#e9edf2;--panel:#fff;--panel2:#edf1f5;--line:#c8d0da;--txt:#1119
   <section id="viewBackup" class="hidden"><div class="panel"><h2>Backup e transferência</h2><p class="small">Exporte músicas, repertórios e sequências para transferir para outro dispositivo. Os dados são locais e não são enviados ao GitHub.</p><div class="row"><button id="export" class="primary">Exportar backup</button><button id="import">Importar backup</button><input id="file" type="file" accept="application/json,.json" class="hidden"></div><div id="backupStatus" class="status"></div></div></section>
 </section>
 </section></main>
+<div id="songPreviewOverlay" class="hidden" aria-hidden="true">
+<section class="song-preview-window" role="dialog" aria-modal="true" aria-labelledby="songPreviewTitle">
+<div class="song-preview-head"><h2 id="songPreviewTitle">Visualização da música</h2>
+<div class="song-preview-actions"><button id="songPreviewEdit" class="primary">Editar</button><button id="songPreviewClose" class="iconbtn" aria-label="Fechar visualização">✕</button></div></div>
+<div id="songPreviewContent" class="song-preview-content"></div>
+</section></div>
 <script>
 (()=>{
 const $=id=>document.getElementById(id),KEY='emSongbook_v2';let data={songs:[],sets:[]},editing=null,cols=3,font=18,activePlaylist=null,activeSeq=0,detailId=null,dragFrom=null;
