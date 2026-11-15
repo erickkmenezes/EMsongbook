@@ -182,7 +182,7 @@ $('tabStage').onclick=()=>show('Stage');$('tabLibrary').onclick=()=>show('Librar
 function currentPlaylist(){return playlist(activePlaylist)||data.sets[0]||null}
 function sequenceLabel(seq){return (seq.songIds||[]).map(id=>song(id)?.title||'Música removida').join(' / ')}
 function renderPlaylistSelect(){let p=currentPlaylist();if(p)activePlaylist=p.id;$('stagePlaylist').innerHTML=data.sets.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join('')||'<option value="">Nenhuma playlist criada</option>';if(activePlaylist)$('stagePlaylist').value=activePlaylist;}
-$('stagePlaylist').onchange=()=>{activePlaylist=$('stagePlaylist').value;activeSeq=0;renderStage()};
+$('stagePlaylist').onchange=()=>{activePlaylist=$('stagePlaylist').value;activeSeq=0;stageSequenceEditing=false;stageSequenceDraft=null;renderStage()};
 function renderStage(){
  let p=currentPlaylist(),seq=p?.sequences?.[activeSeq];
  if(p&&p.sequences.length&&!seq){activeSeq=0;seq=p.sequences[0];}
@@ -213,7 +213,7 @@ function renderStage(){
  if(stageSequenceEditing&&seq)renderStageSequenceEditor();
  renderStageSequenceList();
 }
-function renderStageSequenceList(){let p=currentPlaylist();$('stageSequenceList').innerHTML=p?.sequences?.length?p.sequences.map((q,i)=>'<button class="sequence-item" data-stage-seq="'+i+'" style="text-align:left"><span class="seq-num">'+(i+1)+'.</span><span class="seq-name">'+esc(sequenceLabel(q))+'</span><span class="tag">'+q.songIds.length+' música(s)</span></button>').join(''):'<p class="small">Nenhuma sequência cadastrada.</p>';$('stageSequenceList').querySelectorAll('[data-stage-seq]').forEach(b=>b.onclick=()=>{activeSeq=+b.dataset.stageSeq;renderStage()});}
+function renderStageSequenceList(){let p=currentPlaylist();$('stageSequenceList').innerHTML=p?.sequences?.length?p.sequences.map((q,i)=>'<button class="sequence-item" data-stage-seq="'+i+'" style="text-align:left"><span class="seq-num">'+(i+1)+'.</span><span class="seq-name">'+esc(sequenceLabel(q))+'</span><span class="tag">'+q.songIds.length+' música(s)</span></button>').join(''):'<p class="small">Nenhuma sequência cadastrada.</p>';$('stageSequenceList').querySelectorAll('[data-stage-seq]').forEach(b=>b.onclick=()=>{activeSeq=+b.dataset.stageSeq;stageSequenceEditing=false;stageSequenceDraft=null;renderStage()});}
 function renderStageSequenceEditor(){
  const p=currentPlaylist(),seq=p?.sequences?.[activeSeq];
  if(!seq){stageSequenceEditing=false;$('stageSequenceEditor').classList.add('hidden');return;}
@@ -232,7 +232,7 @@ $('stageSequenceEditorRows').onchange=e=>{const s=e.target.closest('[data-stage-
 $('addStageSequenceSong').onclick=()=>{if(stageSequenceDraft.length>=3)return;const available=data.songs.find(s=>!stageSequenceDraft.includes(s.id));if(!available){$('stageSequenceEditorStatus').textContent='Todas as músicas disponíveis já estão nesta sequência.';return;}stageSequenceDraft.push(available.id);renderStageSequenceEditor();};
 $('saveStageSequence').onclick=()=>{const p=currentPlaylist(),seq=p?.sequences?.[activeSeq];if(!seq)return;if(!stageSequenceDraft.length){$('stageSequenceEditorStatus').textContent='A sequência precisa ter pelo menos uma música. Remova a sequência inteira na tela de repertórios se não quiser mantê-la.';return;}if(stageSequenceDraft.some(id=>!song(id))||new Set(stageSequenceDraft).size!==stageSequenceDraft.length){$('stageSequenceEditorStatus').textContent='Verifique as músicas selecionadas. Não pode haver músicas repetidas.';return;}const previousCols=Number(seq.displayCols)||seq.songIds.length;seq.songIds=[...stageSequenceDraft];seq.displayCols=Math.min(Math.max(1,previousCols),seq.songIds.length);cols=seq.displayCols;save();stageSequenceEditing=false;stageSequenceDraft=null;$('stageSequenceEditorStatus').textContent='';renderSets();renderStage();};
 $('cancelStageSequenceEdit').onclick=()=>{stageSequenceEditing=false;stageSequenceDraft=null;$('stageSequenceEditorStatus').textContent='';renderStage();};
-function gotoSeq(d){let p=currentPlaylist();if(!p)return;let next=activeSeq+d;if(next>=0&&next<p.sequences.length){activeSeq=next;renderStage();}}
+function gotoSeq(d){let p=currentPlaylist();if(!p)return;let next=activeSeq+d;if(next>=0&&next<p.sequences.length){activeSeq=next;stageSequenceEditing=false;stageSequenceDraft=null;renderStage();}}
 $('prevSeq').onclick=()=>gotoSeq(-1);$('nextSeq').onclick=()=>gotoSeq(1);$('backSequences').onclick=()=>show('Sets');
 document.querySelectorAll('[data-cols]').forEach(b=>b.onclick=()=>{const p=currentPlaylist(),seq=p?.sequences?.[activeSeq],next=+b.dataset.cols;if(!seq||next>seq.songIds.length)return;cols=next;seq.displayCols=cols;save();renderStage()});
 $('minus').onclick=()=>{font=Math.max(11,font-1);renderStage()};$('plus').onclick=()=>{font=Math.min(36,font+1);renderStage()};$('contrast').onclick=()=>document.body.classList.toggle('light');$('full').onclick=async()=>{try{if(!document.fullscreenElement)await $('viewStage').requestFullscreen();else await document.exitFullscreen()}catch(e){alert('Tela cheia não disponível.')}};
