@@ -55,7 +55,7 @@ body.light{--bg:#e9edf2;--panel:#fff;--panel2:#edf1f5;--line:#c8d0da;--txt:#1119
   <div class="between section-top"><div><div class="hero-mark">EMSONGBOOK</div><h2>Meu espaço musical</h2></div><button id="dashboardReturn" class="ghost">← Menu principal</button></div>
   <nav class="tabs"><button id="tabStage" class="active">Palco</button><button id="tabLibrary">Biblioteca</button><button id="tabSets">Repertórios</button><button id="tabBackup">Backup</button></nav>
   <section id="viewStage" class="stage-wrap">
-    <div class="panel"><div class="stage-tools"><div class="row mode"><b>Visualização</b><button data-cols="1">1 coluna</button><button data-cols="2" class="active">2 colunas</button><button data-cols="3">3 colunas</button></div><div class="row"><button id="minus">A−</button><b id="fontSize">18 px</b><button id="plus">A+</button><button id="contrast">Contraste</button><button id="full" class="primary">Tela cheia</button></div></div><div class="row" style="margin-top:12px"><span class="small">Playlist:</span><select id="stagePlaylist" style="max-width:340px"></select><span class="small" id="stagePosition"></span></div></div>
+    <div class="panel"><div class="stage-tools"><div class="row mode"><b>Visualização</b><button data-cols="1">1 coluna</button><button data-cols="2" class="active">2 colunas</button><button data-cols="3">3 colunas</button></div><div class="row"><button id="minus">A−</button><b id="fontSize">18 px</b><button id="plus">A+</button><button id="contrast">Contraste</button><button id="full" class="primary">Tela cheia</button><button id="editStageSequence">Editar sequência</button></div></div><div id="stageSequenceEditor" class="hidden" style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line)"><div class="between"><b>Editar músicas desta sequência</b><span class="small">Até 3 músicas por sequência</span></div><div id="stageSequenceEditorRows" class="list" style="margin-top:10px"></div><div class="row" style="margin-top:10px"><button id="addStageSequenceSong">＋ Adicionar música</button><button id="saveStageSequence" class="primary">Salvar alterações</button><button id="cancelStageSequenceEdit">Cancelar</button></div><div id="stageSequenceEditorStatus" class="status"></div></div><div class="row" style="margin-top:12px"><span class="small">Playlist:</span><select id="stagePlaylist" style="max-width:340px"></select><span class="small" id="stagePosition"></span></div></div>
     <div class="stage" id="stageSwipe"><div class="stage-head">ERICK & LEANDRO · AO VIVO</div><div id="columns" class="columns"></div><div class="swipe-hint">Deslize para a esquerda ou direita para trocar de sequência</div></div>
     <div class="stage-nav"><button id="prevSeq">← Anterior</button><div class="sequence-title" id="currentSequence">Nenhuma sequência aberta</div><button id="nextSeq">Próxima →</button></div>
     <div class="panel"><div class="between"><b>Sequências da playlist</b><button id="backSequences">Ver lista completa</button></div><div id="stageSequenceList" class="sequence-list" style="margin-top:10px"></div></div>
@@ -84,7 +84,7 @@ body.light{--bg:#e9edf2;--panel:#fff;--panel2:#edf1f5;--line:#c8d0da;--txt:#1119
 </section></div>
 <script>
 (()=>{
-const $=id=>document.getElementById(id),KEY='emSongbook_v2';let data={songs:[],sets:[]},editing=null,cols=3,font=18,activePlaylist=null,activeSeq=0,detailId=null,dragFrom=null,previewSongId=null,previewEditing=false;
+const $=id=>document.getElementById(id),KEY='emSongbook_v2';let data={songs:[],sets:[]},editing=null,cols=3,font=18,activePlaylist=null,activeSeq=0,detailId=null,dragFrom=null,previewSongId=null,previewEditing=false,stageSequenceDraft=null,stageSequenceEditing=false;
 const uid=()=> 'id'+Date.now().toString(36)+Math.random().toString(36).slice(2,8),song=id=>data.songs.find(s=>s.id===id),playlist=id=>data.sets.find(p=>p.id===id);
 function save(){try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){alert('Não foi possível salvar. Exporte um backup e libere espaço no navegador.');}}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -208,9 +208,30 @@ function renderStage(){
  $('currentSequence').textContent=sequenceLabel(seq);
  $('stagePosition').textContent=(activeSeq+1)+' / '+p.sequences.length;
  $('prevSeq').disabled=activeSeq===0;$('nextSeq').disabled=activeSeq>=p.sequences.length-1;
+ $('editStageSequence').disabled=!seq;
+ $('stageSequenceEditor').classList.toggle('hidden',!stageSequenceEditing||!seq);
+ if(stageSequenceEditing&&seq)renderStageSequenceEditor();
  renderStageSequenceList();
 }
 function renderStageSequenceList(){let p=currentPlaylist();$('stageSequenceList').innerHTML=p?.sequences?.length?p.sequences.map((q,i)=>'<button class="sequence-item" data-stage-seq="'+i+'" style="text-align:left"><span class="seq-num">'+(i+1)+'.</span><span class="seq-name">'+esc(sequenceLabel(q))+'</span><span class="tag">'+q.songIds.length+' música(s)</span></button>').join(''):'<p class="small">Nenhuma sequência cadastrada.</p>';$('stageSequenceList').querySelectorAll('[data-stage-seq]').forEach(b=>b.onclick=()=>{activeSeq=+b.dataset.stageSeq;renderStage()});}
+function renderStageSequenceEditor(){
+ const p=currentPlaylist(),seq=p?.sequences?.[activeSeq];
+ if(!seq){stageSequenceEditing=false;$('stageSequenceEditor').classList.add('hidden');return;}
+ if(!Array.isArray(stageSequenceDraft))stageSequenceDraft=[...seq.songIds];
+ $('stageSequenceEditorRows').innerHTML=stageSequenceDraft.map((id,i)=>'<div class="item"><span class="seq-num">'+(i+1)+'.</span><select data-stage-edit-song="'+i+'" aria-label="Música '+(i+1)+'">'+data.songs.map(s=>'<option value="'+esc(s.id)+'"'+(s.id===id?' selected':'')+'>'+esc(s.title||'Música sem título')+'</option>').join('')+'</select><button class="iconbtn" data-stage-move-up="'+i+'" '+(i===0?'disabled':'')+' title="Mover para cima">↑</button><button class="iconbtn" data-stage-move-down="'+i+'" '+(i===stageSequenceDraft.length-1?'disabled':'')+' title="Mover para baixo">↓</button><button class="danger iconbtn" data-stage-remove-song="'+i+'" title="Remover música">⌫</button></div>').join('')||'<p class="small">Nenhuma música nesta sequência. Adicione uma música para continuar.</p>';
+ $('addStageSequenceSong').disabled=stageSequenceDraft.length>=3||data.songs.length<=stageSequenceDraft.length;
+}
+$('editStageSequence').onclick=()=>{const p=currentPlaylist(),seq=p?.sequences?.[activeSeq];if(!seq)return;stageSequenceDraft=[...seq.songIds];stageSequenceEditing=true;$('stageSequenceEditorStatus').textContent='';renderStage();};
+$('stageSequenceEditorRows').onclick=e=>{
+ const up=e.target.closest('[data-stage-move-up]'),down=e.target.closest('[data-stage-move-down]'),remove=e.target.closest('[data-stage-remove-song]');
+ if(up){const i=+up.dataset.stageMoveUp;if(i>0){[stageSequenceDraft[i-1],stageSequenceDraft[i]]=[stageSequenceDraft[i],stageSequenceDraft[i-1]];renderStageSequenceEditor();}}
+ if(down){const i=+down.dataset.stageMoveDown;if(i<stageSequenceDraft.length-1){[stageSequenceDraft[i+1],stageSequenceDraft[i]]=[stageSequenceDraft[i],stageSequenceDraft[i+1]];renderStageSequenceEditor();}}
+ if(remove){stageSequenceDraft.splice(+remove.dataset.stageRemoveSong,1);renderStageSequenceEditor();}
+};
+$('stageSequenceEditorRows').onchange=e=>{const s=e.target.closest('[data-stage-edit-song]');if(!s)return;const i=+s.dataset.stageEditSong;stageSequenceDraft[i]=s.value;if(new Set(stageSequenceDraft).size!==stageSequenceDraft.length){$('stageSequenceEditorStatus').textContent='Não é possível repetir a mesma música na sequência.';stageSequenceDraft[i]='';renderStageSequenceEditor();}else $('stageSequenceEditorStatus').textContent='';};
+$('addStageSequenceSong').onclick=()=>{if(stageSequenceDraft.length>=3)return;const available=data.songs.find(s=>!stageSequenceDraft.includes(s.id));if(!available){$('stageSequenceEditorStatus').textContent='Todas as músicas disponíveis já estão nesta sequência.';return;}stageSequenceDraft.push(available.id);renderStageSequenceEditor();};
+$('saveStageSequence').onclick=()=>{const p=currentPlaylist(),seq=p?.sequences?.[activeSeq];if(!seq)return;if(!stageSequenceDraft.length){$('stageSequenceEditorStatus').textContent='A sequência precisa ter pelo menos uma música. Remova a sequência inteira na tela de repertórios se não quiser mantê-la.';return;}if(stageSequenceDraft.some(id=>!song(id))||new Set(stageSequenceDraft).size!==stageSequenceDraft.length){$('stageSequenceEditorStatus').textContent='Verifique as músicas selecionadas. Não pode haver músicas repetidas.';return;}const previousCols=Number(seq.displayCols)||seq.songIds.length;seq.songIds=[...stageSequenceDraft];seq.displayCols=Math.min(Math.max(1,previousCols),seq.songIds.length);cols=seq.displayCols;save();stageSequenceEditing=false;stageSequenceDraft=null;$('stageSequenceEditorStatus').textContent='';renderSets();renderStage();};
+$('cancelStageSequenceEdit').onclick=()=>{stageSequenceEditing=false;stageSequenceDraft=null;$('stageSequenceEditorStatus').textContent='';renderStage();};
 function gotoSeq(d){let p=currentPlaylist();if(!p)return;let next=activeSeq+d;if(next>=0&&next<p.sequences.length){activeSeq=next;renderStage();}}
 $('prevSeq').onclick=()=>gotoSeq(-1);$('nextSeq').onclick=()=>gotoSeq(1);$('backSequences').onclick=()=>show('Sets');
 document.querySelectorAll('[data-cols]').forEach(b=>b.onclick=()=>{const p=currentPlaylist(),seq=p?.sequences?.[activeSeq],next=+b.dataset.cols;if(!seq||next>seq.songIds.length)return;cols=next;seq.displayCols=cols;save();renderStage()});
