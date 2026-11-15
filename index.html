@@ -31,18 +31,17 @@ body.light{--bg:#e9edf2;--panel:#fff;--panel2:#edf1f5;--line:#c8d0da;--txt:#1119
   <div class="dashboard-heading"><div class="hero-mark">BEM-VINDO AO</div><h1>EM <span>SONGBOOK</span></h1><p>Escolha o que deseja acessar.</p></div>
   <div class="dashboard-cards">
     <article class="dashboard-card">
-      <div class="dashboard-icon">♫</div><h2>Buscar letras</h2>
-      <p>Encontre letras de músicas no Letras.com.</p>
+      <div class="dashboard-icon">♫</div><h2>Buscar letras EM Songbook</h2>
+      <p>Encontre letras das músicas que já estão cadastradas na sua biblioteca.</p>
       <div class="field"><label>Nome da música</label><input id="dashboardLyricsTitle" placeholder="Ex.: Telefone Mudo"></div>
-      <div class="field"><label>Artista (opcional)</label><input id="dashboardLyricsArtist" placeholder="Ex.: Trio Parada Dura"></div>
-      <button id="dashboardSearchLyrics" class="primary">Buscar letras</button>
+      <button id="dashboardSearchLyrics" class="primary">Buscar na biblioteca</button>
     </article>
     <article class="dashboard-card">
-      <div class="dashboard-icon">♬</div><h2>Buscar cifras</h2>
-      <p>Encontre cifras e acordes no Cifra Club.</p>
+      <div class="dashboard-icon">♬</div><h2>Buscar letras / cifras web</h2>
+      <p>Pesquise letras e cifras disponíveis na internet.</p>
       <div class="field"><label>Nome da música</label><input id="dashboardChordsTitle" placeholder="Ex.: Fio de Cabelo"></div>
       <div class="field"><label>Artista (opcional)</label><input id="dashboardChordsArtist" placeholder="Ex.: Chitãozinho & Xororó"></div>
-      <button id="dashboardSearchChords" class="primary">Buscar cifras</button>
+      <button id="dashboardSearchChords" class="primary">Buscar na web</button>
     </article>
     <article class="dashboard-card playlist-card">
       <div class="dashboard-icon">▤</div><h2>Meu Songbook</h2>
@@ -237,12 +236,13 @@ function editSong(id){let s=song(id);if(!s)return;editing=s.id;$('songTitle').va
 $('songList').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editSong(b.dataset.edit));
 $('songList').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{let s=song(b.dataset.del);if(!confirm('Excluir "'+s.title+'" da biblioteca e das sequências?'))return;data.songs=data.songs.filter(x=>x.id!==s.id);data.sets.forEach(p=>p.sequences=p.sequences.map(q=>({...q,songIds:q.songIds.filter(id=>id!==s.id)})).filter(q=>q.songIds.length));save();renderSongs();renderSets();renderStage();});}
 $('search').oninput=renderSongs;
-function openMusicSearch(kind){const isLyrics=kind==='lyrics',title=$('songTitle').value.trim()||$(isLyrics?'dashboardLyricsTitle':'dashboardChordsTitle').value.trim(),artist=$(isLyrics?'dashboardLyricsArtist':'dashboardChordsArtist').value.trim();if(!title){$('songTitle').focus();return;}const query=[title,artist].filter(Boolean).join(' '),slug=query.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');const url=isLyrics?'https://www.letras.com.br/search/?q='+encodeURIComponent(query):'https://www.cifraclub.com.br/search/'+slug+'/';window.open(url,'_blank','noopener,noreferrer');}
+function searchSongbookLibrary(){const title=$('dashboardLyricsTitle').value.trim();if(!title){$('dashboardLyricsTitle').focus();return;}$('search').value=title;show('Library');$('search').focus();}
 function searchLibrarySite(kind){const query=$('librarySearchQuery').value.trim();if(!query){$('librarySearchQuery').focus();$('songStatus').textContent='Digite o nome da música ou do artista para pesquisar.';return;}const terms=kind==='lyrics'?query+' letra':query+' cifra club';const url='https://www.google.com/search?q='+encodeURIComponent(terms);window.open(url,'_blank','noopener,noreferrer');}
 $('librarySearchLyrics').onclick=()=>searchLibrarySite('lyrics');$('librarySearchChords').onclick=()=>searchLibrarySite('chords');
-$('dashboardSearchLyrics').onclick=()=>openMusicSearch('lyrics');
-$('dashboardSearchChords').onclick=()=>openMusicSearch('chords');
-[['dashboardLyricsTitle','lyrics'],['dashboardLyricsArtist','lyrics'],['dashboardChordsTitle','chords'],['dashboardChordsArtist','chords']].forEach(([id,kind])=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();openMusicSearch(kind);}}));
+function searchWebLyricsChords(){const title=$('dashboardChordsTitle').value.trim(),artist=$('dashboardChordsArtist').value.trim();if(!title){$('dashboardChordsTitle').focus();return;}const query=[title,artist,'letra cifra'].filter(Boolean).join(' ');window.open('https://www.google.com/search?q='+encodeURIComponent(query),'_blank','noopener,noreferrer');}
+$('dashboardSearchLyrics').onclick=searchSongbookLibrary;
+$('dashboardSearchChords').onclick=searchWebLyricsChords;
+['dashboardLyricsTitle','dashboardChordsTitle','dashboardChordsArtist'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if(id==='dashboardLyricsTitle')searchSongbookLibrary();else searchWebLyricsChords();}}));
 $('addSet').onclick=()=>{let name=$('setName').value.trim();if(!name){$('setStatus').textContent='Digite o nome da playlist.';return;}let p={id:uid(),name,sequences:[]};data.sets.push(p);activePlaylist=p.id;$('setName').value='';save();renderSets();openDetail(p.id);$('setStatus').textContent='Playlist criada.';};
 function openDetail(id){let p=playlist(id);if(!p)return;detailId=id;pushRoute('app','Sets',id);$('playlistDetail').classList.remove('hidden');$('detailName').textContent=p.name;fillSongSelects();renderDetailSequences();$('playlistDetail').scrollIntoView({behavior:'smooth',block:'start'});}
 function fillSongSelects(){['seqSong1','seqSong2','seqSong3'].forEach(id=>{const select=$(id),wrap=document.querySelector('[data-picker="'+id+'"]'),trigger=wrap.querySelector('[data-picker-toggle]'),search=wrap.querySelector('[data-picker-search]'),sort=wrap.querySelector('[data-picker-sort]'),options=wrap.querySelector('[data-picker-options]'),selected=select.value,query=search.value.trim().toLocaleLowerCase('pt-BR'),mode=sort.value||'az';let songs=data.songs.filter(s=>!query||(s.title||'').toLocaleLowerCase('pt-BR').includes(query));if(mode==='az')songs.sort((a,b)=>(a.title||'').localeCompare(b.title||'','pt-BR',{sensitivity:'base'}));else songs.sort((a,b)=>mode==='newest'?(b.createdAt||0)-(a.createdAt||0):(a.createdAt||0)-(b.createdAt||0));select.innerHTML='<option value="">— Não selecionar —</option>'+data.songs.map(s=>'<option value="'+esc(s.id)+'">'+esc(s.title||'Música sem título')+'</option>').join('');select.value=selected;const chosen=song(selected);trigger.textContent=chosen?(chosen.title||'Música sem título')+' ▾':'Selecionar música ▾';options.innerHTML=songs.length?songs.map(s=>'<button type="button" class="song-picker-option'+(s.id===selected?' selected':'')+'" data-picker-choice="'+esc(id)+'" data-song-id="'+esc(s.id)+'">'+esc(s.title||'Música sem título')+'</button>').join(''):'<div class="song-picker-empty">Nenhuma música encontrada.</div>';});}
