@@ -300,20 +300,17 @@ function liveFitStageColumns(){
   col.style.boxSizing='border-box';col.style.height=available+'px';col.style.minHeight='0';col.style.display='flex';col.style.flexDirection='column';col.style.justifyContent='flex-start';col.style.overflow='hidden';
   const title=col.querySelector('h1'),lyrics=col.querySelector('.live-song-lyrics');
   if(title){title.style.flex='0 0 auto';title.style.margin='0 0 6px';}
-  if(lyrics){
-   const titleHeight=title?title.getBoundingClientRect().height:0;
-   const lyricHeight=Math.max(70,available-titleHeight-18);
-   lyrics.style.boxSizing='border-box';lyrics.style.display='block';lyrics.style.flex='0 0 '+lyricHeight+'px';lyrics.style.height=lyricHeight+'px';lyrics.style.minHeight='0';lyrics.style.width='100%';lyrics.style.maxWidth='none';lyrics.style.lineHeight='1.2';lyrics.style.overflow='auto';lyrics.style.fontSize='32px';
-  }
+  if(!lyrics)return;
+  const titleHeight=title?title.getBoundingClientRect().height:0;
+  const lyricHeight=Math.max(70,available-titleHeight-18);
+  lyrics.style.boxSizing='border-box';lyrics.style.display='block';lyrics.style.flex='0 0 '+lyricHeight+'px';lyrics.style.height=lyricHeight+'px';lyrics.style.minHeight='0';lyrics.style.width='100%';lyrics.style.maxWidth='none';lyrics.style.lineHeight='1.2';lyrics.style.overflow='hidden';
+  const minSize=12,maxSize=Math.max(minSize,Math.min(100,Number(liveFont)||48));
+  const fits=size=>{lyrics.style.fontSize=size+'px';return lyrics.scrollHeight<=lyrics.clientHeight+2&&lyrics.scrollWidth<=lyrics.clientWidth+2;};
+  let low=minSize,high=maxSize,best=minSize;
+  while(low<=high){const mid=Math.floor((low+high)/2);if(fits(mid)){best=mid;low=mid+1;}else high=mid-1;}
+  lyrics.style.fontSize=best+'px';
+  lyrics.style.overflow=(lyrics.scrollHeight>lyrics.clientHeight+2||lyrics.scrollWidth>lyrics.clientWidth+2)?'auto':'hidden';
  });
- let low=12,high=32,best=12;
- const fits=size=>{
-  cols.forEach(col=>{const el=col.querySelector('.live-song-lyrics');if(el)el.style.fontSize=size+'px';});
-  return cols.every(col=>{const el=col.querySelector('.live-song-lyrics');return !el||(el.scrollHeight<=el.clientHeight+2&&el.scrollWidth<=el.clientWidth+2);});
- };
- while(low<=high){const mid=Math.floor((low+high)/2);if(fits(mid)){best=mid;low=mid+1;}else high=mid-1;}
- fits(best);
- cols.forEach(col=>{const el=col.querySelector('.live-song-lyrics');if(el)el.style.overflow=(el.scrollHeight>el.clientHeight+2||el.scrollWidth>el.clientWidth+2)?'auto':'hidden';});
  liveApplyZoom();
 }
 function liveUpdatePlaybackControl(){$('livePause').classList.toggle('hidden',!livePlaybackArmed||!livePrefs.autoAdvance);$('livePause').textContent=livePaused?'▶':'Ⅱ';$('livePause').setAttribute('aria-label',livePaused?'Retomar reprodução':'Pausar reprodução');}
