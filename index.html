@@ -93,7 +93,7 @@ body.light{--bg:#e9edf2;--panel:#fff;--panel2:#edf1f5;--line:#c8d0da;--txt:#1119
 <section id="liveSequences" class="live-screen hidden"><div class="live-sequence-top"><button id="liveBackRepertoires" class="live-back">← Repertórios</button><div id="liveSelectedRepertoire" class="live-screen-heading"></div></div><p class="live-subheading">Escolha a sequência e a música para começar</p><div id="liveSequenceList" class="live-choice-list"></div></section>
 <section id="liveReading" class="live-reading hidden"><div class="live-reading-top"><div id="liveLastSong" class="live-last-song hidden">última música</div><div id="liveStageColumnControls" class="live-stage-column-controls" aria-label="Colunas da sequência"></div><button id="livePause" class="live-pause hidden" aria-label="Pausar">Ⅱ</button></div><div id="liveNextPreview" class="live-next-preview hidden" aria-live="polite"><span class="live-next-label">PRÓXIMA SEQUÊNCIA</span><span id="liveNextPreviewSongs" class="live-next-songs"></span></div><div id="liveReadingContent" class="live-reading-content"><div id="liveStageColumns" class="live-stage-columns"></div></div><div id="liveReadingPosition" class="live-reading-position"></div>
 <div id="liveConfigOverlay" class="live-config-overlay hidden"><div class="live-config-panel"><div class="live-config-head"><b>Configurações do palco</b><button id="liveConfigClose" class="live-config-close">Voltar à música</button></div>
-<div class="live-config-grid"><label>Tempo por sequência<div class="row" style="gap:7px"><input id="liveDuration" type="number" min="1" max="3600" step="1" value="180" style="flex:1"><select id="liveDurationUnit" style="width:auto;min-width:112px"><option value="seconds" selected>Segundos</option><option value="minutes">Minutos</option></select></div></label><label class="live-switch"><input id="liveAutoAdvance" type="checkbox"> Avançar automaticamente</label><label class="live-switch"><input id="liveAutoScroll" type="checkbox"> Rolagem automática</label><label>Velocidade da rolagem<input id="liveScrollSpeed" type="range" min="1" max="10" value="3"><span id="liveSpeedValue">3</span></label><label class="live-switch"><input id="liveLoop" type="checkbox"> Looping da rolagem</label><div class="live-config-font"><span>Fonte</span><button id="liveFontMinus">A−</button><b id="liveFontValue">48 px</b><button id="liveFontPlus">A+</button></div><div class="live-config-font"><span>Zoom</span><button id="liveZoomOut">−</button><b id="liveZoomValue">100%</b><button id="liveZoomIn">＋</button><button id="liveZoomReset">Reset</button></div></div>
+<div class="live-config-grid"><label>Tempo por sequência<div class="row" style="gap:7px"><input id="liveDuration" type="number" min="1" max="3600" step="1" value="180" style="flex:1"><select id="liveDurationUnit" style="width:auto;min-width:112px"><option value="seconds" selected>Segundos</option><option value="minutes">Minutos</option></select></div></label><label class="live-switch"><input id="liveAutoAdvance" type="checkbox"> Avançar automaticamente</label><label class="live-switch"><input id="liveAutoScroll" type="checkbox"> Rolagem automática</label><label>Velocidade da rolagem<input id="liveScrollSpeed" type="range" min="1" max="10" value="3"><span id="liveSpeedValue">3</span></label><label class="live-switch"><input id="liveLoop" type="checkbox"> Looping da rolagem</label><div class="live-config-font"><span>Fonte</span><button id="liveFontMinus">A−</button><b id="liveFontValue">56 px</b><button id="liveFontPlus">A+</button></div><div class="live-config-font"><span>Zoom</span><button id="liveZoomOut">−</button><b id="liveZoomValue">100%</b><button id="liveZoomIn">＋</button><button id="liveZoomReset">Reset</button></div></div>
 <p class="live-config-hint">Pinça para alternar entre leitura e configurações. Deslize para avançar ou voltar; dois toques à direita avançam e à esquerda voltam.</p><button id="liveResume" class="live-resume">Programar e iniciar reprodução</button></div></div></section>
 <section id="liveShowEnd" class="live-screen hidden"><div class="live-end-message">Belo show</div><button id="liveEndClose" class="live-end-close" aria-label="Fechar">×</button></section>
 </div><div id="legacyStage" class="hidden">
@@ -280,7 +280,7 @@ document.querySelectorAll('[data-cols]').forEach(b=>b.onclick=()=>{const p=curre
 $('minus').onclick=()=>{font=Math.max(11,font-1);renderStage()};$('plus').onclick=()=>{font=Math.min(36,font+1);renderStage()};$('contrast').onclick=()=>document.body.classList.toggle('light');$('full').onclick=async()=>{try{if(!document.fullscreenElement)await $('viewStage').requestFullscreen();else await document.exitFullscreen()}catch(e){alert('Tela cheia não disponível.')}};
 let touchX=0,touchY=0;$('stageSwipe').addEventListener('touchstart',e=>{touchX=e.changedTouches[0].clientX;touchY=e.changedTouches[0].clientY},{passive:true});$('stageSwipe').addEventListener('touchend',e=>{let dx=e.changedTouches[0].clientX-touchX,dy=e.changedTouches[0].clientY-touchY;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.25)gotoSeq(dx<0?1:-1)},{passive:true});
 
-let livePlaylistId=null,liveSequenceIndex=0,liveSongIndex=0,liveDurationTimer=null,liveScrollTimer=null,livePaused=false,livePlaybackArmed=false,liveConfigOpen=false,liveFont=48,liveZoom=1,livePanX=0,livePanY=0,liveTouchStartDistance=0,livePinchStartZoom=1,livePinchStartPanX=0,livePinchStartPanY=0,livePinchStartCenterX=0,livePinchStartCenterY=0,livePinchMode='',livePinchConfigTriggered=false,liveLastTap=0,livePinchHandled=false,liveReadingTouchY=0,livePanTouchX=0,livePanTouchY=0;
+let livePlaylistId=null,liveSequenceIndex=0,liveSongIndex=0,liveDurationTimer=null,liveScrollTimer=null,livePaused=false,livePlaybackArmed=false,liveConfigOpen=false,liveFont=56,liveZoom=1,livePanX=0,livePanY=0,liveTouchStartDistance=0,livePinchStartZoom=1,livePinchStartPanX=0,livePinchStartPanY=0,livePinchStartCenterX=0,livePinchStartCenterY=0,livePinchMode='',livePinchConfigTriggered=false,liveLastTap=0,livePinchHandled=false,liveReadingTouchY=0,livePanTouchX=0,livePanTouchY=0;
 let livePrefs={duration:180,autoAdvance:false,autoScroll:false,speed:3,loop:false};
 function liveShowScreen(id){liveDisarmPlayback();['liveWelcome','liveRepertoires','liveSequences','liveShowEnd'].forEach(x=>$(x).classList.toggle('hidden',x!==id));$('liveReading').classList.add('hidden');}
 function liveStartShow(){liveShowScreen('liveRepertoires');renderLiveRepertoires();}
@@ -299,19 +299,34 @@ function liveFitStageColumns(){
  cols.forEach(col=>{
   col.style.boxSizing='border-box';col.style.height=available+'px';col.style.minHeight='0';col.style.display='flex';col.style.flexDirection='column';col.style.justifyContent='flex-start';col.style.overflow='hidden';
   const title=col.querySelector('h1'),lyrics=col.querySelector('.live-song-lyrics');
-  if(title){title.style.flex='0 0 auto';title.style.margin='0 0 6px';}
+  if(title){title.style.flex='0 0 auto';title.style.margin='0 0 8px';}
   if(!lyrics)return;
   const titleHeight=title?title.getBoundingClientRect().height:0;
-  const lyricHeight=Math.max(70,available-titleHeight-18);
-  lyrics.style.boxSizing='border-box';lyrics.style.display='block';lyrics.style.flex='0 0 '+lyricHeight+'px';lyrics.style.height=lyricHeight+'px';lyrics.style.minHeight='0';lyrics.style.width='100%';lyrics.style.maxWidth='none';lyrics.style.lineHeight='1.2';lyrics.style.overflow='hidden';
-  const minSize=12,maxSize=Math.max(minSize,Math.min(100,Number(liveFont)||48));
-  const fits=size=>{lyrics.style.fontSize=size+'px';return lyrics.scrollHeight<=lyrics.clientHeight+2&&lyrics.scrollWidth<=lyrics.clientWidth+2;};
+  const lyricHeight=Math.max(70,available-titleHeight-22);
+  lyrics.style.boxSizing='border-box';lyrics.style.display='block';lyrics.style.flex='0 0 '+lyricHeight+'px';lyrics.style.height=lyricHeight+'px';lyrics.style.minHeight='0';lyrics.style.width='100%';lyrics.style.maxWidth='none';lyrics.style.lineHeight='1.28';lyrics.style.overflow='hidden';
+  const minSize=38,maxSize=Math.max(minSize,Math.min(100,Number(liveFont)||56));
+  const probe=document.createElement('div');
+  const cs=getComputedStyle(lyrics);
+  probe.innerHTML=lyrics.innerHTML;
+  probe.style.cssText='position:absolute!important;left:-100000px!important;top:0!important;display:block!important;visibility:hidden!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;flex:none!important;box-sizing:border-box!important;white-space:normal!important;';
+  probe.style.width=lyrics.clientWidth+'px';
+  probe.style.fontFamily=cs.fontFamily;probe.style.fontWeight=cs.fontWeight;probe.style.fontStyle=cs.fontStyle;probe.style.lineHeight='1.28';probe.style.letterSpacing=cs.letterSpacing;probe.style.padding=cs.padding;probe.style.border=cs.border;probe.style.overflowWrap='anywhere';probe.style.wordBreak=cs.wordBreak;
+  document.body.appendChild(probe);
+  const measuredHeight=size=>{probe.style.fontSize=size+'px';return probe.getBoundingClientRect().height;};
   let low=minSize,high=maxSize,best=minSize;
-  while(low<=high){const mid=Math.floor((low+high)/2);if(fits(mid)){best=mid;low=mid+1;}else high=mid-1;}
+  while(low<=high){const mid=Math.floor((low+high)/2);if(measuredHeight(mid)<=lyricHeight+2){best=mid;low=mid+1;}else high=mid-1;}
+  probe.remove();
   lyrics.style.fontSize=best+'px';
-  lyrics.style.overflow=(lyrics.scrollHeight>lyrics.clientHeight+2||lyrics.scrollWidth>lyrics.clientWidth+2)?'auto':'hidden';
+  lyrics.style.overflow=measuredHeightFallback(lyrics,best,lyricHeight)?'auto':'hidden';
  });
  liveApplyZoom();
+}
+function measuredHeightFallback(el,size,available){
+ const clone=document.createElement('div'),cs=getComputedStyle(el);
+ clone.innerHTML=el.innerHTML;
+ clone.style.cssText='position:absolute;left:-100000px;top:0;display:block;visibility:hidden;height:auto;min-height:0;max-height:none;overflow:visible;box-sizing:border-box;white-space:normal;';
+ clone.style.width=el.clientWidth+'px';clone.style.fontFamily=cs.fontFamily;clone.style.fontWeight=cs.fontWeight;clone.style.fontSize=size+'px';clone.style.lineHeight='1.28';clone.style.letterSpacing=cs.letterSpacing;clone.style.padding=cs.padding;clone.style.overflowWrap='anywhere';clone.style.wordBreak=cs.wordBreak;
+ document.body.appendChild(clone);const overflow=clone.getBoundingClientRect().height>available+2;clone.remove();return overflow;
 }
 function liveUpdatePlaybackControl(){$('livePause').classList.toggle('hidden',!livePlaybackArmed||!livePrefs.autoAdvance);$('livePause').textContent=livePaused?'▶':'Ⅱ';$('livePause').setAttribute('aria-label',livePaused?'Retomar reprodução':'Pausar reprodução');}
 function liveDisarmPlayback(){livePlaybackArmed=false;livePaused=false;liveStopTimers();liveUpdatePlaybackControl();}
